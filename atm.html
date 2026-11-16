@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Банкомат</title>
+    <style>
+        * {
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+        background-color: #1e242b;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        }
+
+        /* Корпус банкомата */
+        .atm {
+        background-color: #2c3540;
+        width: 340px;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 2px 3px rgba(255, 255, 255, 0.1);
+        border: 4px solid #3d4856;
+        }
+
+        /* Верхняя панель с балансом */
+        .balance-header {
+        background-color: #181d23;
+        color: #a0aab5;
+        padding: 12px 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        border: 1px solid #3d4856;
+        }
+
+        .balance-amount {
+        color: #4ade80;
+        font-weight: bold;
+        font-size: 18px;
+        }
+
+        /* Экран банкомата (окошко с цифрами) */
+        .screen {
+        background-color: #0f291e;
+        border: 4px solid #1a2026;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+        text-align: right;
+        min-height: 95px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        }
+
+        .screen-label {
+        color: #4ade80;
+        opacity: 0.7;
+        font-size: 12px;
+        text-align: left;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        }
+
+        .screen-display {
+        color: #4ade80;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 32px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        }
+
+        .screen-message {
+        font-size: 13px;
+        min-height: 18px;
+        text-align: left;
+        margin-top: 5px;
+        }
+
+        .msg-error { color: #f87171; }
+        .msg-success { color: #4ade80; }
+
+        /* Цифровая клавиатура */
+        .keypad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+        }
+
+        .btn {
+        background-color: #475569;
+        color: white;
+        border: none;
+        padding: 15px 0;
+        font-size: 20px;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #1e293b;
+        transition: transform 0.05s, box-shadow 0.05s;
+        }
+
+        .btn:active {
+        transform: translateY(3px);
+        box-shadow: 0 1px 0 #1e293b;
+        }
+
+        .btn:hover {
+        background-color: #52627a;
+        }
+
+        .btn-clear {
+        background-color: #dc2626;
+        box-shadow: 0 4px 0 #7f1d1d;
+        }
+        .btn-clear:hover { background-color: #ef4444; }
+
+        .btn-withdraw {
+        background-color: #16a34a;
+        box-shadow: 0 4px 0 #14532d;
+        font-size: 16px;
+        }
+        .btn-withdraw:hover { background-color: #22c55e; }
+
+        /* Слот выдачи наличных */
+        .cash-slot-container {
+        background-color: #181d23;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #3d4856;
+        text-align: center;
+        }
+
+        .cash-slot {
+        height: 12px;
+        background-color: #090b0e;
+        border-radius: 6px;
+        border: 2px solid #475569;
+        margin-bottom: 8px;
+        }
+
+        .slot-label {
+        color: #64748b;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        }
+    </style>
+    </head>
+    <body>
+
+    <div class="atm">
+    <!-- Баланс сверху -->
+    <div class="balance-header">
+        <span>Ваш баланс:</span>
+        <span class="balance-amount" id="balance">15 000 ₽</span>
+    </div>
+
+    <!-- Окошко с цифрами -->
+    <div class="screen">
+        <div class="screen-label">Сумма снятия:</div>
+        <div class="screen-display" id="display">0</div>
+        <div class="screen-message" id="message"></div>
+    </div>
+
+    <!-- Кнопки -->
+    <div class="keypad">
+        <button class="btn" onclick="pressDigit('1')">1</button>
+        <button class="btn" onclick="pressDigit('2')">2</button>
+        <button class="btn" onclick="pressDigit('3')">3</button>
+        <button class="btn" onclick="pressDigit('4')">4</button>
+        <button class="btn" onclick="pressDigit('5')">5</button>
+        <button class="btn" onclick="pressDigit('6')">6</button>
+        <button class="btn" onclick="pressDigit('7')">7</button>
+        <button class="btn" onclick="pressDigit('8')">8</button>
+        <button class="btn" onclick="pressDigit('9')">9</button>
+        <button class="btn btn-clear" onclick="clearInput()">C</button>
+        <button class="btn" onclick="pressDigit('0')">0</button>
+        <button class="btn btn-withdraw" onclick="withdraw()">Снять</button>
+    </div>
+
+    <!-- Визуальный слот для денег -->
+    <div class="cash-slot-container">
+        <div class="cash-slot"></div>
+        <div class="slot-label">Выдача наличных</div>
+    </div>
+    </div>
+
+    <script>
+        const balance = document.getElementById('balance');
+        const display = document.getElementById('display');
+        const message = document.getElementById('message');
+
+        let currentBalance = 15000;
+        let inputAmount = '';
+
+       
+
+            function updateBalanceUI() {
+                balance.textContent = currentBalance.toLocaleString('ru-RU') + ' ₽';
+            }
+
+            function pressDigit(digit) {
+                message.textContent = '';
+
+                if(inputAmount === '' && digit === '0') return;
+                if(inputAmount.length >= 7) return;
+
+            inputAmount += digit;
+            display.textContent = inputAmount;
+            }
+
+            function clearInput() {
+                display.textContent = '0';
+                inputAmount = '';
+            }
+
+            
+
+            function withdraw() {
+                const amount = Number(inputAmount);
+
+                if(amount <= 0) {
+                    showMessage('Введите сумму больше нуля.' ); return
+                }
+                if(amount > currentBalance) {
+                    showMessage('Недостаточно средств на счете.'); return
+                }
+                currentBalance -= amount;
+                updateBalanceUI();
+                showMessage('Вы успешно сняли ' + amount.toLocaleString('ru-RU') + ' ₽', 'success');
+                clearInput();
+                
+                
+
+            }
+            function showMessage(msg, type) {
+                message.textContent = msg;
+                message.className = 'screen-message ' + (type === 'error' ? 'msg-error' : 'msg-success');
+            }
+        
+
+    </script>
+
+    </body>
+</html>
